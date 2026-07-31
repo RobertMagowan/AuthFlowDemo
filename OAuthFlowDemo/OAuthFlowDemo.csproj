@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>3d0fd228-07dc-4421-b6ee-d0fd0b05f7a9</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Identity.Web" Version="4.14.1" />
+    <PackageReference Include="Microsoft.Identity.Web.UI" Version="4.14.1" />
+  </ItemGroup>
+
+</Project>

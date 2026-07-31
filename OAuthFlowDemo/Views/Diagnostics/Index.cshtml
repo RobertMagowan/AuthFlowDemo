@@ -1,0 +1,99 @@
+@using OAuthFlowDemo.Services
+@using System.Text.Json
+@model IReadOnlyList<OidcEvent>
+@{
+    ViewData["Title"] = "Event Diagnostics";
+    var eventJson = JsonSerializer.Serialize(Model, new JsonSerializerOptions { WriteIndented = true });
+}
+
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+        <h2>OAuth Flow Event Timeline</h2>
+        <div style="display: flex; gap: 0.5rem;">
+            <a href="/diagnostics?format=json" target="_blank" class="btn btn-outline">View JSON</a>
+            <form method="post" action="/diagnostics/clear" style="display: inline;">
+                <button type="submit" class="btn btn-danger">Clear Events</button>
+            </form>
+        </div>
+    </div>
+    <p style="color: #666; margin-top: 0.5rem;">@Model.Count event(s) captured. Oldest first (chronological order).</p>
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="card empty-state">
+        <h3>No events captured yet</h3>
+        <p>Sign in to start the OAuth flow and see each step recorded here.</p>
+        <p style="margin-top: 1rem;"><a href="/sign-in" class="btn btn-primary">Sign In</a></p>
+    </div>
+}
+else
+{
+    <div class="card" style="margin-bottom: 1rem;">
+        <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; font-size: 0.85rem;">
+            <span><span class="badge badge-protocol">●</span> OAuth2/OIDC Protocol</span>
+            <span><span class="badge badge-apiauth">●</span> API Auth (login on API)</span>
+            <span><span class="badge badge-infrastructure">●</span> ASP.NET Core Infrastructure</span>
+        </div>
+        <p style="margin-top: 0.5rem; font-size: 0.8rem; color: #888;">
+            Events prefixed with <strong>Testing:</strong> are simulated. Their badge color shows what real event type they mimic.
+        </p>
+    </div>
+
+    <div class="card">
+        <ol class="event-timeline">
+            @foreach (var evt in Model)
+            {
+                var catClass = evt.Category switch
+                {
+                    EventCategory.Protocol => "badge-protocol",
+                    EventCategory.ApiAuth => "badge-apiauth",
+                    EventCategory.Infrastructure => "badge-infrastructure",
+                    EventCategory.Simulated => "badge-simulated",
+                    _ => "badge-info"
+                };
+                var catLabel = evt.Category switch
+                {
+                    EventCategory.Protocol => "OAuth2/OIDC",
+                    EventCategory.ApiAuth => "API Auth",
+                    EventCategory.Infrastructure => "Infra",
+                    EventCategory.Simulated => "Simulated",
+                    _ => ""
+                };
+                <li>
+                    <div class="event-meta">
+                        <span class="badge badge-info">@evt.FlowPhase</span>
+                        <span class="badge @catClass">@catLabel</span>
+                        @evt.Timestamp.LocalDateTime.ToString("yyyy-MM-dd HH:mm:ss.fff")
+                        <span style="color: #999; margin-left: 0.5rem;">#@evt.Id.ToString().Substring(0, 8)</span>
+                    </div>
+                    <div class="event-type">@evt.EventType</div>
+                    @if (evt.Description is not null)
+                    {
+                        <div style="font-size: 0.85rem; color: #555; margin: 0.25rem 0; padding: 0.25rem 0.5rem; background: #fafafa; border-radius: 4px; border-left: 3px solid #ddd;">@evt.Description</div>
+                    }
+                    @if (evt.RequestPath is not null)
+                    {
+                        <div style="font-size: 0.8rem; color: #888;">Path: @evt.RequestPath</div>
+                    }
+                    @if (evt.Details.Count > 0)
+                    {
+                        <div class="event-details">
+                            <table>
+                                @foreach (var detail in evt.Details)
+                                {
+                                    <tr><td>@detail.Key</td><td>@detail.Value</td></tr>
+                                }
+                            </table>
+                        </div>
+                    }
+                </li>
+            }
+        </ol>
+    </div>
+
+    <div class="card">
+        <h2>Raw JSON</h2>
+        <pre>@eventJson</pre>
+    </div>
+}
