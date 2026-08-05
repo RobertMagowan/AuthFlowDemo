@@ -14,3 +14,17 @@ param webAppName string
 
 @description('Tags applied to the App Service resources.')
 param tags object
+
+module appServicePlan 'br/public:avm/res/web/serverfarm:0.7.0' = {
+  name: 'deployAppServicePlan'
+  params: {
+    name: appServicePlanName
+    location: location
+    kind: 'linux'
+    reserved: true
+    skuName: appServicePlanSkuName
+    skuCapacity: 1
+    zoneRedundant: false
+    tags: tags
+  }
+}
