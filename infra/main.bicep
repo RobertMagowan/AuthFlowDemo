@@ -56,3 +56,7 @@ module webAppResources './modules/webapp.bicep' = {
   }
 }
 output resourceGroupName string = resourceGroupName
+output resourceGroupName string = resourceGroupName
+output appServicePlanName string = appServicePlanName
+output webAppName string = webAppResources.outputs.webAppName
+output webAppUrl string = webAppResources.outputs.webAppUrl
