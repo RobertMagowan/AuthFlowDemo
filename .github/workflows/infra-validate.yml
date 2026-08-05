@@ -33,6 +33,6 @@ jobs:
             az bicep install
 
             az deployment sub validate \
-              --name "validate-webapp-dev" \
+              --name "validate-webapp-dev-west" \
               --location "uksouth" \
               --parameters infra/environments/development.bicepparam
