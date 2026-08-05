@@ -1,6 +1,6 @@
 using '../main.bicep'
 
 param location = 'uksouth'
-param workloadName = 'mywebapp'
+param workloadName = 'myapp'
 param environmentName = 'development'
 param appServicePlanSkuName = 'B1'
