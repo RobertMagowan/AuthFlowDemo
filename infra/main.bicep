@@ -1,10 +1,10 @@
 targetScope = 'subscription'
 
 @description('Azure region in which the resources will be deployed.')
-param location string = 'uksouth'
+param location string
 
 @description('Short name for the application.')
-param workloadName string = 'mywebapp'
+param workloadName string
 
 @description('Deployment environment.')
 @allowed([
@@ -12,7 +12,8 @@ param workloadName string = 'mywebapp'
   'test'
   'prod'
 ])
-param environmentName string = 'development'
+param environmentName string
+param appServicePlanSkuName string
 
 var resourceGroupName = 'rg-${workloadName}-${environmentName}-${location}'
 
