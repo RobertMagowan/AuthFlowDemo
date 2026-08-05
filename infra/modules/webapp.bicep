@@ -59,6 +59,7 @@ module webApp 'br/public:avm/res/web/site:0.24.0' = {
       alwaysOn: true
       ftpsState: 'Disabled'
       minTlsVersion: '1.2'
+      linuxFxVersion: 'DOTNETCORE|10.0'
     }
 
     tags: tags
