@@ -1,0 +1,55 @@
+name: Deploy Azure infrastructure
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: Create or update the development infrastructure
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: infrastructure-development
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy development infrastructure
+    if: ${{ inputs.confirm }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Sign in to Azure using OIDC
+        uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy Bicep infrastructure
+        uses: azure/cli@v2
+        with:
+          azcliversion: latest
+          inlineScript: |
+            set -euo pipefail
+
+            az bicep install
+
+            DEPLOYMENT_NAME="deploy-webapp-development-${{ github.run_number }}"
+
+            echo "Starting deployment: $DEPLOYMENT_NAME"
+
+            az deployment sub create \
+              --name "$DEPLOYMENT_NAME" \
+              --location "ukwest" \
+              --parameters infra/environments/development.bicepparam \
+              --query properties.outputs \
+              --output json
