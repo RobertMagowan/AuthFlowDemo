@@ -10,20 +10,25 @@ param workloadName string
 @allowed([
   'development'
   'test'
-  'prod'
+  'production'
 ])
 param environmentName string
+
+@description('SKU used by the App Service Plan.')
 param appServicePlanSkuName string
 
 var resourceGroupName = 'rg-${workloadName}-${environmentName}-${location}'
 
 var appServicePlanName = 'asp-${workloadName}-${environmentName}'
 
-// Azure Web App names must be globally unique.
-var webAppName = 'app-${workloadName}-${environmentName}-${uniqueString(
+// Calculate this separately because the expression should not span
+// multiple lines inside an interpolated string.
+var webAppNameSuffix = uniqueString(
   subscription().subscriptionId,
   resourceGroupName
-)}'
+)
+
+var webAppName = 'app-${workloadName}-${environmentName}-${webAppNameSuffix}'
 
 var tags = {
   application: workloadName
@@ -31,7 +36,7 @@ var tags = {
   managedBy: 'Bicep'
 }
 
-module resourceGroup 'br/public:avm/res/resources/resource-group:0.4.3' = {
+module resourceGroupModule 'br/public:avm/res/resources/resource-group:0.4.3' = {
   name: 'deployResourceGroup'
   params: {
     name: resourceGroupName
@@ -45,7 +50,7 @@ module webAppResources './modules/webapp.bicep' = {
   scope: resourceGroup(resourceGroupName)
 
   dependsOn: [
-    resourceGroup
+    resourceGroupModule
   ]
 
   params: {
@@ -56,7 +61,7 @@ module webAppResources './modules/webapp.bicep' = {
     tags: tags
   }
 }
-output resourceGroupName string = resourceGroupName
+
 output resourceGroupName string = resourceGroupName
 output appServicePlanName string = appServicePlanName
 output webAppName string = webAppResources.outputs.webAppName
