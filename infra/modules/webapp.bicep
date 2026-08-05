@@ -7,7 +7,7 @@ param location string
 param appServicePlanName string
 
 @description('SKU used by the App Service Plan.')
-param appServicePlanSkuName string = 'B1'
+param appServicePlanSkuName string 
 
 @description('Globally unique name of the Web App.')
 param webAppName string
