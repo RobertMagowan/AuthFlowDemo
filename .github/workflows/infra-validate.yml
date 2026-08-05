@@ -36,3 +36,18 @@ jobs:
               --name "validate-webapp-dev-west" \
               --location "uksouth" \
               --parameters infra/environments/development.bicepparam
+
+      - name: Preview infrastructure changes
+        uses: azure/cli@v2
+        with:
+          azcliversion: latest
+          inlineScript: |
+            set -e
+
+            az bicep install
+
+            az deployment sub what-if \
+              --name "whatif-webapp-development-ukwest" \
+              --location "ukwest" \
+              --parameters infra/environments/development.bicepparam \
+              --result-format ResourceIdOnly
