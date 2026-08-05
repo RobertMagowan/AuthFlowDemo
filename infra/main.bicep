@@ -16,6 +16,14 @@ param environmentName string = 'development'
 
 var resourceGroupName = 'rg-${workloadName}-${environmentName}-${location}'
 
+var appServicePlanName = 'asp-${workloadName}-${environmentName}'
+
+// Azure Web App names must be globally unique.
+var webAppName = 'app-${workloadName}-${environmentName}-${uniqueString(
+  subscription().subscriptionId,
+  resourceGroupName
+)}'
+
 var tags = {
   application: workloadName
   environment: environmentName
@@ -31,4 +39,20 @@ module resourceGroup 'br/public:avm/res/resources/resource-group:0.4.3' = {
   }
 }
 
+module webAppResources './modules/webapp.bicep' = {
+  name: 'deployWebAppResources'
+  scope: resourceGroup(resourceGroupName)
+
+  dependsOn: [
+    resourceGroup
+  ]
+
+  params: {
+    location: location
+    appServicePlanName: appServicePlanName
+    appServicePlanSkuName: appServicePlanSkuName
+    webAppName: webAppName
+    tags: tags
+  }
+}
 output resourceGroupName string = resourceGroupName
