@@ -28,3 +28,42 @@ module appServicePlan 'br/public:avm/res/web/serverfarm:0.7.0' = {
     tags: tags
   }
 }
+
+module webApp 'br/public:avm/res/web/site:0.24.0' = {
+  name: 'deployWebApp'
+  params: {
+    name: webAppName
+    location: location
+    kind: 'app,linux'
+
+    serverFarmResourceId: appServicePlan.outputs.resourceId
+
+    httpsOnly: true
+
+    managedIdentities: {
+      systemAssigned: true
+    }
+
+    basicPublishingCredentialsPolicies: [
+      {
+        name: 'ftp'
+        allow: false
+      }
+      {
+        name: 'scm'
+        allow: false
+      }
+    ]
+
+    siteConfig: {
+      alwaysOn: true
+      ftpsState: 'Disabled'
+      minTlsVersion: '1.2'
+    }
+
+    tags: tags
+  }
+}
+
+output webAppName string = webAppName
+output webAppUrl string = 'https://${webAppName}.azurewebsites.net'
